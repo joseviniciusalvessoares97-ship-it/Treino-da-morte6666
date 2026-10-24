@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<title>Treinos da Morte 💀</title>
+<style>
+:root{color-scheme:dark;--bg:#090909;--panel:#141414;--line:#292929;--red:#ef233c;--muted:#b9b9b9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f7f7;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:24px 18px;background:linear-gradient(120deg,#171717,#080808);border-bottom:4px solid var(--red)}
+.wrap{max-width:900px;margin:auto}.brand{color:var(--red);font-weight:950;letter-spacing:1.5px;font-size:clamp(22px,5vw,32px)}.tag{color:#ddd;margin-top:8px}.hero{padding:20px 0 8px}.hero h1{font-size:clamp(28px,7vw,44px);line-height:1.05;margin:0;font-weight:950}.hero h1 span{color:var(--red)}.hero p{color:var(--muted);margin:12px 0 0}
+main{max-width:900px;margin:auto;padding:20px 14px 40px}h2{font-size:19px;margin:0 0 12px}.days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:18px}.day{background:var(--panel);color:white;border:1px solid var(--line);border-radius:12px;padding:13px 7px;min-height:76px;text-align:center;cursor:pointer;font:inherit}.day strong{display:block;color:var(--red);font-size:18px}.day span{font-size:12px}.day.active{border:2px solid var(--red);background:#241012}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}.eyebrow{color:var(--red);font-weight:850;font-size:13px;letter-spacing:1px}.workout-title{font-size:24px;font-weight:900;margin:3px 0 4px}.sub{color:var(--muted);font-size:14px;margin:0 0 12px}.exercise{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}.exercise:last-child{border-bottom:0}.exercise input{width:21px;height:21px;accent-color:var(--red);flex-shrink:0}.exercise label{flex:1;cursor:pointer}.exercise small{display:block;color:var(--muted);font-size:12px;margin-top:3px}.exercise.done label{text-decoration:line-through;color:#aaa}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:15px}.progress{font-size:13px;color:var(--muted)}button.secondary{border:1px solid #555;border-radius:8px;padding:9px 12px;background:#222;color:white;font:inherit;cursor:pointer}.tip{margin-top:14px;padding:12px;border-left:3px solid var(--red);background:#1a1112;border-radius:6px;font-size:13px;color:#ddd}footer{text-align:center;color:#999;font-size:12px;padding:22px 10px}button:focus-visible,input:focus-visible{outline:2px solid #ff6676;outline-offset:3px}
+@media(min-width:650px){.days{grid-template-columns:repeat(6,minmax(0,1fr))}main{padding-top:26px}.card{padding:22px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">☠ TREINOS DA MORTE ☠</div><div class="tag">DISCIPLINA HOJE. EVOLUÇÃO AMANHÃ.</div><div class="hero"><h1>SEM DESCULPAS.<br><span>SÓ EVOLUÇÃO.</span></h1><p>Seu treino, organizado em um só lugar.</p></div></div></header>
+<main>
+<h2>🔥 ESCOLHA O TREINO DO DIA</h2>
+<div class="days" id="days" aria-label="Dias de treino"></div>
+<section class="card" aria-live="polite">
+<div class="eyebrow" id="eyebrow"></div><div class="workout-title" id="title"></div><p class="sub">Marque cada exercício quando terminar.</p>
+<div id="list"></div>
+<div class="toolbar"><span class="progress" id="progress">0 exercícios concluídos</span><button class="secondary" id="reset" type="button">Reiniciar este treino</button></div>
+<div class="tip">☠️ Foque na técnica, use cargas adequadas e respeite o descanso. Se sentir dor aguda, pare o exercício.</div>
+</section>
+</main>
+<footer>☠ TREINOS DA MORTE · Feito para acompanhar sua rotina de academia.</footer>
+<script>
+const plans=[
+{day:"SEG",name:"Peito, Ombro e Tríceps",items:["Supino reto","Supino inclinado","Crucifixo","Desenvolvimento de ombros","Elevação lateral","Tríceps na polia"]},
+{day:"TER",name:"Pernas",items:["Leg press","Cadeira extensora","Cadeira flexora","Agachamento","Mesa flexora","Panturrilha"]},
+{day:"QUA",name:"Costas e Bíceps",items:["Puxada alta","Remada sentada","Remada curvada","Pulldown","Rosca direta","Rosca alternada"]},
+{day:"QUI",name:"Inferiores completos",items:["Agachamento","Leg press","Cadeira extensora","Cadeira flexora","Stiff","Panturrilha"]},
+{day:"SEX",name:"Superiores completos",items:["Supino reto","Remada baixa","Desenvolvimento de ombros","Puxada alta","Elevação lateral","Rosca direta","Tríceps na polia"]},
+{day:"SÁB",name:"Cardio",items:["Esteira","Bicicleta ergométrica","Elíptico"]}
+];
+let active=0, checks={};
+try{checks=JSON.parse(localStorage.getItem("tdm-checks")||"{}")}catch(e){checks={}}
+const $=id=>document.getElementById(id);
+function save(){try{localStorage.setItem("tdm-checks",JSON.stringify(checks))}catch(e){}}
+function render(){
+ $("days").replaceChildren();
+ plans.forEach((p,i)=>{const b=document.createElement("button");b.type="button";b.className="day"+(i===active?" active":"");b.setAttribute("aria-pressed",String(i===active));const strong=document.createElement("strong");strong.textContent=p.day;const span=document.createElement("span");span.textContent=p.name;b.append(strong,span);b.addEventListener("click",()=>{active=i;render()});$("days").append(b)});
+ const p=plans[active];$("eyebrow").textContent="TREINO DE "+p.day;$("title").textContent=p.name;$("list").replaceChildren();
+ p.items.forEach((name,j)=>{const key=active+"-"+j, row=document.createElement("div");row.className="exercise"+(checks[key]?" done":"");const cb=document.createElement("input");cb.type="checkbox";cb.id="ex-"+key;cb.checked=!!checks[key];cb.addEventListener("change",()=>{checks[key]=cb.checked;save();renderListOnly()});const label=document.createElement("label");label.htmlFor=cb.id;label.textContent=name;row.append(cb,label);$("list").append(row)});
+ updateProgress();
+}
+function renderListOnly(){const p=plans[active];[...$("list").children].forEach((row,j)=>{row.classList.toggle("done",!!checks[active+"-"+j])});updateProgress()}
+function updateProgress(){const total=plans[active].items.length,done=plans[active].items.filter((_,j)=>checks[active+"-"+j]).length;$("progress").textContent=done+" de "+total+" exercícios concluídos"}
+$("reset").addEventListener("click",()=>{plans[active].items.forEach((_,j)=>delete checks[active+"-"+j]);save();render()});render();
+</script>
+</body>
+</html>
